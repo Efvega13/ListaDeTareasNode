@@ -1,12 +1,10 @@
 const readline = require('readline');
-const fs = require('fs');
-
+const fs = require('fs').promises;
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
-
 
 function mostrarOpciones() {
   console.log('Opciones:');
@@ -17,33 +15,50 @@ function mostrarOpciones() {
   console.log('5. Salir');
 }
 
-
 const tareas = [];
-
 
 function agregarTarea(indicador, descripcion) {
   tareas.push({ indicador, descripcion, completada: false });
-  guardarTareas();
+  return guardarTareas()
+    .then(() => {
+      console.log('Tarea agregada.');
+    })
+    .catch(error => {
+      console.error('Error al agregar tarea:', error);
+    });
 }
-
 
 function eliminarTarea(indicador) {
   const tareaIndex = tareas.findIndex(tarea => tarea.indicador === indicador);
   if (tareaIndex !== -1) {
     tareas.splice(tareaIndex, 1);
-    guardarTareas();
+    return guardarTareas()
+      .then(() => {
+        console.log('Tarea eliminada.');
+      })
+      .catch(error => {
+        console.error('Error al eliminar tarea:', error);
+      });
+  } else {
+    console.log('La tarea no existe.');
   }
 }
-
 
 function completarTarea(indicador) {
   const tarea = tareas.find(tarea => tarea.indicador === indicador);
   if (tarea) {
     tarea.completada = true;
-    guardarTareas();
+    return guardarTareas()
+      .then(() => {
+        console.log('Tarea marcada como completada.');
+      })
+      .catch(error => {
+        console.error('Error al completar tarea:', error);
+      });
+  } else {
+    console.log('La tarea no existe.');
   }
 }
-
 
 function mostrarTareas() {
   console.log('Lista de tareas:');
@@ -53,43 +68,47 @@ function mostrarTareas() {
   });
 }
 
-
 function guardarTareas() {
-  fs.writeFileSync('tareas.json', JSON.stringify(tareas, null, 2));
+  return fs.writeFile('tareas.json', JSON.stringify(tareas, null, 2))
+    .catch(error => {
+      console.error('Error al guardar tareas:', error);
+    });
 }
-
 
 if (fs.existsSync('tareas.json')) {
-  const data = fs.readFileSync('tareas.json', 'utf8');
-  tareas.push(...JSON.parse(data));
+  fs.readFile('tareas.json', 'utf8')
+    .then(data => {
+      tareas.push(...JSON.parse(data));
+    })
+    .catch(error => {
+      console.error('Error al leer el archivo de tareas:', error);
+    })
+    .finally(() => {
+      mostrarOpciones();
+    });
+} else {
+  mostrarOpciones();
 }
 
-
-mostrarOpciones();
-
-
-rl.on('line', (input) => {
+rl.on('line', input => {
   switch (input) {
     case '1':
-      rl.question('Indicador de la tarea: ', (indicador) => {
-        rl.question('Descripción de la tarea: ', (descripcion) => {
+      rl.question('Indicador de la tarea: ', indicador => {
+        rl.question('Descripción de la tarea: ', descripcion => {
           agregarTarea(indicador, descripcion);
-          console.log('Tarea agregada.');
           mostrarOpciones();
         });
       });
       break;
     case '2':
-      rl.question('Indicador de la tarea a eliminar: ', (indicador) => {
+      rl.question('Indicador de la tarea a eliminar: ', indicador => {
         eliminarTarea(indicador);
-        console.log('Tarea eliminada.');
         mostrarOpciones();
       });
       break;
     case '3':
-      rl.question('Indicador de la tarea a completar: ', (indicador) => {
+      rl.question('Indicador de la tarea a completar: ', indicador => {
         completarTarea(indicador);
-        console.log('Tarea marcada como completada.');
         mostrarOpciones();
       });
       break;

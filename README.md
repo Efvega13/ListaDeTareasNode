@@ -1,0 +1,5 @@
+ Vi que cuando se utilizan async y await, las funciones asíncronas pueden escribirse de manera más secuencial, lo que facilita la lectura y el mantenimiento del código.
+
+Se utiliza el método then() para encadenar las promesas y manejar el flujo asíncrono. En este enfoque, cada operación asincrónica se encadena con un then() y se especifica una función de callback para manejar el resultado exitoso o el error de la promesa. Esto sigue siendo una forma válida de trabajar con promesas en JavaScript, pero puede llevar a un código más anidado y menos legible cuando se realizan múltiples operaciones asíncronas.
+
+El metodo sync/await es una forma moderna y legible de trabajar con promesas en JavaScript, mientras que el método then() es una técnica más antigua que sigue siendo válida pero puede resultar en un código menos claro y más anidado en comparación. La elección entre ellos depende de la preferencia del desarrollador y de la estructura del proyecto.
